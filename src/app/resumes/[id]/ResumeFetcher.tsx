@@ -14,6 +14,16 @@ export default function ResumeFetcher({ id }: { id: string }) {
     useEffect(() => {
         const fetchResume = async () => {
             try {
+                // MVP Hack: Check for local draft first
+                if (id.startsWith("draft-")) {
+                    const localData = localStorage.getItem("tempResumeData");
+                    if (localData) {
+                        setData(JSON.parse(localData));
+                        setLoading(false);
+                        return;
+                    }
+                }
+
                 const docRef = doc(db, "resumes", id);
                 const docSnap = await getDoc(docRef);
 

@@ -1,4 +1,7 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+"use client";
+
+import { motion } from "framer-motion";
+import { Mail, MapPin, Phone, Linkedin, Github } from "lucide-react";
 
 export interface ResumeData {
     fullName: string;
@@ -26,64 +29,56 @@ export interface ResumeData {
 }
 
 export default function ResumeView({ data }: { data: ResumeData }) {
+    if (!data) return <div>No resume data found.</div>;
+
     return (
-        <div className="max-w-4xl mx-auto bg-white text-black shadow-2xl rounded-lg overflow-hidden print:shadow-none print:rounded-none">
+        <div className="bg-white text-gray-900 min-h-[1100px] w-full max-w-[850px] mx-auto shadow-2xl p-12 md:p-16 print:shadow-none print:p-0 print:max-w-full">
             {/* Header */}
-            <div className="bg-slate-900 text-white p-8 md:p-12">
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2">{data.fullName}</h1>
-                <p className="text-xl md:text-2xl text-slate-300 font-light">{data.role}</p>
+            <header className="border-b-2 border-gray-900 pb-8 mb-8">
+                <h1 className="text-4xl md:text-5xl font-bold uppercase tracking-tight text-gray-900 mb-2">
+                    {data.fullName}
+                </h1>
+                <p className="text-xl text-gray-600 font-medium">{data.role}</p>
 
-                <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-400">
-                    {data.contact?.email && (
-                        <div className="flex items-center gap-1">
-                            <Mail className="w-4 h-4" />
-                            <span>{data.contact.email}</span>
-                        </div>
-                    )}
-                    {data.contact?.location && (
-                        <div className="flex items-center gap-1">
-                            <MapPin className="w-4 h-4" />
-                            <span>{data.contact.location}</span>
-                        </div>
-                    )}
-                    {data.contact?.phone && (
-                        <div className="flex items-center gap-1">
-                            <Phone className="w-4 h-4" />
-                            <span>{data.contact.phone}</span>
-                        </div>
-                    )}
-                </div>
-            </div>
+                {/* Contact Info (Optional) */}
+                {data.contact && (
+                    <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-600">
+                        {data.contact.email && <div className="flex items-center gap-1"><Mail className="w-3 h-3" /> {data.contact.email}</div>}
+                        {data.contact.phone && <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {data.contact.phone}</div>}
+                        {data.contact.location && <div className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {data.contact.location}</div>}
+                    </div>
+                )}
+            </header>
 
-            <div className="p-8 md:p-12 grid md:grid-cols-3 gap-8">
-                {/* Main Content */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Left Column */}
                 <div className="md:col-span-2 space-y-8">
                     {/* Summary */}
                     <section>
-                        <h2 className="text-xl font-bold uppercase tracking-wider text-slate-800 border-b-2 border-slate-200 pb-2 mb-4">
+                        <h2 className="text-lg font-bold uppercase tracking-wider border-b border-gray-300 mb-4 pb-1">
                             Professional Summary
                         </h2>
-                        <p className="text-slate-600 leading-relaxed">
+                        <p className="text-gray-700 leading-relaxed">
                             {data.summary}
                         </p>
                     </section>
 
                     {/* Experience */}
                     <section>
-                        <h2 className="text-xl font-bold uppercase tracking-wider text-slate-800 border-b-2 border-slate-200 pb-2 mb-4">
-                            Experience
+                        <h2 className="text-lg font-bold uppercase tracking-wider border-b border-gray-300 mb-4 pb-1">
+                            Work Experience
                         </h2>
                         <div className="space-y-6">
-                            {data.experience.map((exp, i) => (
-                                <div key={i}>
+                            {data.experience?.map((exp, index) => (
+                                <div key={index}>
                                     <div className="flex justify-between items-baseline mb-1">
-                                        <h3 className="font-bold text-lg text-slate-800">{exp.role}</h3>
-                                        <span className="text-sm text-slate-500 font-medium">{exp.duration}</span>
+                                        <h3 className="font-bold text-gray-800">{exp.role}</h3>
+                                        <span className="text-sm text-gray-500 font-medium">{exp.duration}</span>
                                     </div>
-                                    <div className="text-slate-600 font-medium mb-2">{exp.company}</div>
-                                    <ul className="list-disc list-outside ml-4 space-y-1 text-slate-600">
-                                        {exp.description.map((desc, j) => (
-                                            <li key={j}>{desc}</li>
+                                    <div className="text-gray-700 font-medium mb-2">{exp.company}</div>
+                                    <ul className="list-disc list-outside ml-4 space-y-1 text-gray-600 text-sm">
+                                        {exp.description?.map((desc, i) => (
+                                            <li key={i}>{desc}</li>
                                         ))}
                                     </ul>
                                 </div>
@@ -92,16 +87,16 @@ export default function ResumeView({ data }: { data: ResumeData }) {
                     </section>
                 </div>
 
-                {/* Sidebar */}
+                {/* Right Column */}
                 <div className="space-y-8">
                     {/* Skills */}
                     <section>
-                        <h2 className="text-xl font-bold uppercase tracking-wider text-slate-800 border-b-2 border-slate-200 pb-2 mb-4">
+                        <h2 className="text-lg font-bold uppercase tracking-wider border-b border-gray-300 mb-4 pb-1">
                             Skills
                         </h2>
                         <div className="flex flex-wrap gap-2">
-                            {data.skills.map((skill, i) => (
-                                <span key={i} className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-medium">
+                            {data.skills?.map((skill, index) => (
+                                <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm font-medium">
                                     {skill}
                                 </span>
                             ))}
@@ -110,15 +105,15 @@ export default function ResumeView({ data }: { data: ResumeData }) {
 
                     {/* Education */}
                     <section>
-                        <h2 className="text-xl font-bold uppercase tracking-wider text-slate-800 border-b-2 border-slate-200 pb-2 mb-4">
+                        <h2 className="text-lg font-bold uppercase tracking-wider border-b border-gray-300 mb-4 pb-1">
                             Education
                         </h2>
                         <div className="space-y-4">
-                            {data.education.map((edu, i) => (
-                                <div key={i}>
-                                    <h3 className="font-bold text-slate-800">{edu.school}</h3>
-                                    <div className="text-slate-600">{edu.degree}</div>
-                                    <div className="text-sm text-slate-500">{edu.year}</div>
+                            {data.education?.map((edu, index) => (
+                                <div key={index}>
+                                    <div className="font-bold text-gray-800">{edu.school}</div>
+                                    <div className="text-sm text-gray-600">{edu.degree}</div>
+                                    <div className="text-xs text-gray-500">{edu.year}</div>
                                 </div>
                             ))}
                         </div>
