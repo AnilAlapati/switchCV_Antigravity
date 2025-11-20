@@ -67,7 +67,7 @@ export default function CreateResumePage() {
         }
     };
 
-    const saveResume = async (resumeData: any) => {
+    const saveResume = async (resumeData: unknown) => {
         if (!user) {
             console.error("User not authenticated");
             return;
@@ -76,7 +76,8 @@ export default function CreateResumePage() {
             const resumeId = Math.floor(10000000 + Math.random() * 90000000).toString();
 
             await setDoc(doc(db, "resumes", resumeId), {
-                ...resumeData,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ...(resumeData as any),
                 userId: user.uid,
                 createdAt: new Date().toISOString(),
                 id: resumeId

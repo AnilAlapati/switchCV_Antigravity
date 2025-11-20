@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import ResumeView from "@/components/features/ResumeView";
+import ResumeView, { ResumeData } from "@/components/features/ResumeView";
 import { Loader2 } from "lucide-react";
 
 export default function ResumeFetcher({ id }: { id: string }) {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<ResumeData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -18,7 +18,7 @@ export default function ResumeFetcher({ id }: { id: string }) {
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    setData(docSnap.data());
+                    setData(docSnap.data() as ResumeData);
                 } else {
                     setError(true);
                 }

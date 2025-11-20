@@ -1,7 +1,6 @@
-import { cn } from "@/lib/utils";
-import { Mail, MapPin, Phone, Linkedin, Github } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 
-interface ResumeData {
+export interface ResumeData {
     fullName: string;
     role: string;
     summary: string;

@@ -22,7 +22,7 @@ export default function SearchPage() {
             <div className="w-full max-w-md space-y-8 text-center">
                 <div className="space-y-2">
                     <h1 className="text-4xl font-bold tracking-tighter">Find Talent</h1>
-                    <p className="text-muted-foreground">Enter a Resume ID to view a candidate's profile.</p>
+                    <p className="text-muted-foreground">Enter a Resume ID to view a candidate&apos;s profile.</p>
                 </div>
 
                 <form onSubmit={handleSearch} className="flex gap-2">

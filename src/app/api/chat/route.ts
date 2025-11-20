@@ -44,7 +44,7 @@ export async function POST(req: Request) {
                     role: "model",
                     parts: [{ text: "Understood. I am ready to help you build your resume. What is your full name?" }],
                 },
-                ...messages.slice(0, -1).map((m: any) => ({
+                ...messages.slice(0, -1).map((m: { role: string; content: string }) => ({
                     role: m.role === "user" ? "user" : "model",
                     parts: [{ text: m.content }],
                 })),
