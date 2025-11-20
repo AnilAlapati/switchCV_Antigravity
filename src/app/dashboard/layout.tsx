@@ -93,8 +93,8 @@ export default function DashboardLayout({
             {/* Footer */}
             <footer className="border-t border-white/10 glass mt-20">
                 <div className="container py-8 max-w-screen-2xl">
-                    <p className="text-center text-sm text-muted-foreground">
-                        © 2024 <span className="gradient-text font-semibold">SwitchCV</span>. Built with AI.
+                    <p className="text-center text-sm text-gray-400">
+                        © 2024 <span className="text-white font-semibold">SwitchCV</span>. Built with AI.
                     </p>
                 </div>
             </footer>

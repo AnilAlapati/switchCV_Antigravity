@@ -26,10 +26,10 @@ export default function CreateResumePage() {
                             <Sparkles className="w-4 h-4 text-purple-400" />
                             <span>AI Resume Builder</span>
                         </div>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white">
                             Create Your <span className="gradient-text">Perfect Resume</span>
                         </h1>
-                        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
+                        <p className="text-lg md:text-xl text-gray-400 max-w-2xl">
                             Chat with our AI assistant to build a professional, ATS-optimized resume tailored to your experience.
                         </p>
                     </div>
