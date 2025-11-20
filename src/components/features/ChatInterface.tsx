@@ -4,8 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Loader2, User, Bot } from "lucide-react";
+import { Send, Loader2, Bot, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { db } from "@/lib/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 interface Message {
     role: "user" | "model";
@@ -57,22 +59,32 @@ export default function ChatInterface() {
             const data = await response.json();
 
             if (data.resumeData) {
-                // Resume generation complete
-                // In a real app, we'd save this to Firestore first.
-                // For now, we'll store it in localStorage to pass it to the view page (MVP hack)
-                localStorage.setItem("tempResumeData", JSON.stringify(data.resumeData));
+                // Reserve a sequential ID
+                const idResponse = await fetch("/api/reserve-id", {
+                    method: "POST",
+                });
+
+                if (!idResponse.ok) {
+                    throw new Error("Failed to reserve ID");
+                }
+
+                const { id: reservedId } = await idResponse.json();
+
+                // Save to Firestore with the reserved ID
+                const resumeRef = doc(db, "resumes", reservedId);
+                await setDoc(resumeRef, {
+                    ...data.resumeData,
+                    createdAt: serverTimestamp(),
+                });
 
                 // Simulate a "saving" delay then redirect
                 setMessages((prev) => [
                     ...prev,
-                    { role: "model", content: "Perfect! I have everything I need. Generating your resume now..." }
+                    { role: "model", content: `Perfect! I have everything I need. Your resume ID is ${reservedId}. Generating your resume now...` }
                 ]);
 
                 setTimeout(() => {
-                    // We'll assume the ID is 'draft' for this rapid MVP step, or generate a random one
-                    const draftId = "draft-" + Date.now();
-                    // In a real flow, we'd get the ID from the Firestore save response
-                    router.push(`/resumes/${draftId}`);
+                    router.push(`/resumes/${reservedId}`);
                 }, 1500);
 
             } else {
@@ -93,49 +105,64 @@ export default function ChatInterface() {
     };
 
     return (
-        <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+        <div className="relative flex flex-col h-[700px] w-full max-w-3xl mx-auto glass-strong rounded-3xl overflow-hidden shadow-2xl">
+            {/* Gradient Accent Bar */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-animated" />
+
             {/* Chat Header */}
-            <div className="p-4 border-b border-white/10 bg-white/5 flex items-center gap-3">
-                <div className="p-2 bg-blue-500/20 rounded-lg">
-                    <Bot className="w-6 h-6 text-blue-400" />
-                </div>
-                <div>
-                    <h2 className="font-semibold text-white">Resume Architect</h2>
-                    <p className="text-xs text-gray-400">AI-powered resume builder</p>
+            <div className="relative p-6 border-b border-white/10 bg-gradient-to-br from-white/10 to-transparent">
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl blur-lg opacity-75 animate-pulse-slow" />
+                        <div className="relative p-3 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl">
+                            <Bot className="w-7 h-7 text-white" />
+                        </div>
+                    </div>
+                    <div className="flex-1">
+                        <h2 className="font-bold text-xl gradient-text">Resume Architect</h2>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            AI-powered resume builder
+                        </p>
+                    </div>
+                    <div className="glass px-3 py-1.5 rounded-full text-xs font-medium">
+                        {messages.length} messages
+                    </div>
                 </div>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 <AnimatePresence initial={false}>
                     {messages.map((msg, index) => (
                         <motion.div
                             key={index}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
+                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
                             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                         >
                             <div
-                                className={`max-w-[80%] p-3 rounded-2xl ${msg.role === "user"
-                                        ? "bg-blue-600 text-white rounded-br-none"
-                                        : "bg-white/10 text-gray-200 rounded-bl-none"
+                                className={`max-w-[85%] p-4 rounded-2xl backdrop-blur-sm ${msg.role === "user"
+                                    ? "bg-gradient-to-br from-purple-600 to-pink-600 text-white rounded-br-sm shadow-lg shadow-purple-500/20"
+                                    : "glass border-white/20 text-gray-100 rounded-bl-sm"
                                     }`}
                             >
-                                <p className="text-sm leading-relaxed">{msg.content}</p>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                             </div>
                         </motion.div>
                     ))}
                 </AnimatePresence>
                 {isLoading && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         className="flex justify-start"
                     >
-                        <div className="bg-white/10 p-3 rounded-2xl rounded-bl-none flex items-center gap-2">
-                            <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-                            <span className="text-xs text-gray-400">Thinking...</span>
+                        <div className="glass border-white/20 p-4 rounded-2xl rounded-bl-sm flex items-center gap-3">
+                            <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                            <span className="text-sm text-gray-300">Thinking...</span>
                         </div>
                     </motion.div>
                 )}
@@ -143,26 +170,31 @@ export default function ChatInterface() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 border-t border-white/10 bg-white/5">
+            <div className="p-6 border-t border-white/10 bg-gradient-to-br from-white/5 to-transparent">
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();
                         sendMessage();
                     }}
-                    className="flex gap-2"
+                    className="flex gap-3"
                 >
                     <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Type your answer..."
-                        className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-blue-500"
+                        className="flex-1 bg-white/5 border-white/20 text-white placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent rounded-xl h-12 px-4"
+                        disabled={isLoading}
                     />
                     <Button
                         type="submit"
                         disabled={isLoading || !input.trim()}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="btn-gradient h-12 px-6 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <Send className="w-4 h-4" />
+                        {isLoading ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <Send className="w-5 h-5" />
+                        )}
                     </Button>
                 </form>
             </div>
